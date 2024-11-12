@@ -1,0 +1,2 @@
+add_subdirectory(single_program_multi_processes)
+add_subdirectory(multi_program_multi_processes)
