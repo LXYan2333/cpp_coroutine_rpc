@@ -32,9 +32,9 @@ if(CPP_COROUTINE_RPC_BUILD_EXAMPLES)
 endif()
 
 install(EXPORT cpp_coroutine_rpcTargets
-    FILE cpp_coroutine_rpcTargets.cmake
     DESTINATION lib/cmake/cpp_coroutine_rpc
-)
+    NAMESPACE cpp_coroutine_rpc::
+    FILE cpp_coroutine_rpcTargets.cmake)
 
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
@@ -54,5 +54,8 @@ install(FILES ${PROJECT_BINARY_DIR}/cpp_coroutine_rpcConfig.cmake
         DESTINATION lib/cmake/cpp_coroutine_rpc)
 
 export(EXPORT cpp_coroutine_rpcTargets
-    FILE "${PROJECT_BINARY_DIR}/cpp_coroutine_rpcTargets.cmake"
-)
+    NAMESPACE cpp_coroutine_rpc::
+    FILE "${PROJECT_BINARY_DIR}/cpp_coroutine_rpcTargets.cmake")
+
+# has no effect unless CMAKE_EXPORT_PACKAGE_REGISTRY is set to ON
+export(PACKAGE cpp_coroutine_rpc)

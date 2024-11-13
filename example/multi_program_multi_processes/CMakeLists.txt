@@ -8,8 +8,7 @@ endif()
 add_library(cpp_coroutine_rpc_example_rpc_share_info SHARED share_info.cc)
 target_link_libraries(cpp_coroutine_rpc_example_rpc_share_info 
     PUBLIC 
-    cpp_coroutine_rpc::cpp_coroutine_rpc 
-    Boost::headers)
+    cpp_coroutine_rpc::cpp_coroutine_rpc)
 
 set(CPP_COROUTINE_RPC_EXAMPLE_SHARED_LIBRARY_BASE_ADDRESS "0x300000000000" CACHE STRING "The example's shared library base address. Must be a multiple of page size (usually 4k) and do not conflict with other libraries' map address.")
 
