@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <thread>
 #include <unistd.h>
+#include <worker_install_path.h>
 
 namespace bip = boost::interprocess;
 using namespace std::literals;
@@ -47,10 +48,15 @@ auto main() -> int {
       perror("fork");
       return 1;
     } else if (pid_pi == 0) {
-      std::string cmd = "cpp_coroutine_rpc_example_worker_pi";
+      std::string cmd =
+          WORKER_INSTALL_PATH "/cpp_coroutine_rpc_example_worker_pi";
       std::array<char *, 2> argv = {cmd.data(), nullptr};
       if (execvp(cmd.data(), argv.data()) == -1) {
         perror("execvp");
+        std::cerr << " : " << cmd << '\n';
+        std::cerr << "You may need to set CMAKE_INSTALL_PREFIX or"
+                     "CPP_COROUTINE_RPC_EXAMPLE_WORKER_INSTALL_PATH to the "
+                     "correct install path\n";
         return 1;
       };
     }
@@ -62,10 +68,15 @@ auto main() -> int {
       perror("fork");
       return 1;
     } else if (pid_e == 0) {
-      std::string cmd = "cpp_coroutine_rpc_example_worker_e";
+      std::string cmd =
+          WORKER_INSTALL_PATH "/cpp_coroutine_rpc_example_worker_e";
       std::array<char *, 2> argv = {cmd.data(), nullptr};
       if (execvp(cmd.data(), argv.data()) == -1) {
         perror("execvp");
+        std::cerr << " : " << cmd << '\n';
+        std::cerr << "You may need to set CMAKE_INSTALL_PREFIX or"
+                     "CPP_COROUTINE_RPC_EXAMPLE_WORKER_INSTALL_PATH to the "
+                     "correct install path\n";
         return 1;
       };
     }

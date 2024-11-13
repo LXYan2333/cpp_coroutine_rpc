@@ -1,8 +1,8 @@
 include(GNUInstallDirs)
 if(APPLE)
-    set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
+    list(APPEND CMAKE_INSTALL_RPATH "@executable_path/../lib")
 elseif(UNIX)
-    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+    list(APPEND CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/lib ${CMAKE_INSTALL_LIBDIR} "$ORIGIN/../lib")
 endif()
 
 add_library(cpp_coroutine_rpc_example_rpc_share_info SHARED share_info.cc)
@@ -34,10 +34,17 @@ else()
 2. The linker does not support --image-base or -Ttext-segment")
 endif()
 
+set(CPP_COROUTINE_RPC_EXAMPLE_WORKER_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}" CACHE STRING "The worker install path, wich will be used by the master to find the worker executables. Default is CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBEXECDIR")
+configure_file(worker_install_path.h.in ${PROJECT_BINARY_DIR}/worker_install_path.h @ONLY)
 add_executable(cpp_coroutine_rpc_example_master master.cc)
 target_link_libraries(cpp_coroutine_rpc_example_master 
     PRIVATE 
     cpp_coroutine_rpc_example_rpc_share_info)
+target_sources(cpp_coroutine_rpc_example_master
+    PRIVATE
+    FILE_SET HEADERS
+    BASE_DIRS ${PROJECT_BINARY_DIR}
+    FILES ${PROJECT_BINARY_DIR}/worker_install_path.h)
 
 add_executable(cpp_coroutine_rpc_example_worker_pi worker_pi.cc)
 target_link_libraries(cpp_coroutine_rpc_example_worker_pi 

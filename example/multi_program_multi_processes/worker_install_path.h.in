@@ -1,0 +1,3 @@
+// clang-format off
+#define WORKER_INSTALL_PATH "@CPP_COROUTINE_RPC_EXAMPLE_WORKER_INSTALL_PATH@"
+// clang-format on
