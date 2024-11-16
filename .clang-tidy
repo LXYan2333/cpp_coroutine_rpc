@@ -22,8 +22,10 @@ CheckOptions:
     value: 'x|y|z|pi|e'
   - key: readability-identifier-length.IgnoredParameterNames
     value: 'x|y|z|pi|e'
-
-
+  - key: readability-magic-numbers.IgnorePowersOf2IntegerValues
+    value: true
+  - key: cppcoreguidelines-avoid-magic-numbers.IgnorePowersOf2IntegerValues
+    value: true
 
 
 

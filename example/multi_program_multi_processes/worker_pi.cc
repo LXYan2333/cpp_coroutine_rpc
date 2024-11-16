@@ -17,9 +17,13 @@ auto calculate_pi() -> double {
 } // namespace my_test
 
 auto main() -> int {
+
+  // NOLINTBEGIN(*-reinterpret-cast)
   bip::fixed_managed_shared_memory segment(
       bip::open_only, "test_shared_info",
       reinterpret_cast<void *>(0x400000000000));
+  // NOLINTEND(*-reinterpret-cast)
+
   bip::named_semaphore start_semaphore(bip::open_only, "test_start_semaphore");
   start_semaphore.post();
 

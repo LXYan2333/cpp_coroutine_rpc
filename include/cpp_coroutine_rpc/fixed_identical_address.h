@@ -100,6 +100,7 @@ public:
 
     void operator delete(void *ptr) = delete;
 
+    // NOLINTNEXTLINE(cert-dcl54-cpp,*-new-delete-*)
     void operator delete(void *ptr, size_t size);
   };
 
@@ -400,17 +401,26 @@ auto task::promise_type::operator new(const std::size_t size,
   const size_t ceiled_alloc_size = next_aligned_size(size);
   void *ptr = local_context->get_segment()->allocate(
       ceiled_alloc_size + sizeof(bip::fixed_managed_shared_memory *));
+
+  // NOLINTBEGIN(*-reinterpret-cast,*-pointer-arithmetic)
   *reinterpret_cast<bip::fixed_managed_shared_memory::segment_manager **>(
       static_cast<char *>(ptr) + ceiled_alloc_size) =
       local_context->m_shm_segment->get_segment_manager();
+  // NOLINTEND(*-reinterpret-cast,*-pointer-arithmetic)
+
   return ptr;
 }
 
+// NOLINTNEXTLINE(cert-dcl54-cpp,*-new-delete-*)
 inline void task::promise_type::operator delete(void *ptr, size_t size) {
   const size_t ceiled_alloc_size = next_aligned_size(size);
+
+  // NOLINTBEGIN(*-reinterpret-cast,*-pointer-arithmetic)
   bip::fixed_managed_shared_memory::segment_manager *segment_manager =
       *reinterpret_cast<bip::fixed_managed_shared_memory::segment_manager **>(
           static_cast<char *>(ptr) + ceiled_alloc_size);
+  // NOLINTEND(*-reinterpret-cast,*-pointer-arithmetic)
+
   segment_manager->deallocate(ptr);
 };
 

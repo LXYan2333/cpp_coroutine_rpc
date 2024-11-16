@@ -12,7 +12,7 @@ namespace bip = boost::interprocess;
 using namespace std::literals;
 
 auto main() -> int {
-  struct remover {
+  struct remover { // NOLINT(*-special-member-functions)
     remover() {
       bip::shared_memory_object::remove("test_shared_info");
       bip::named_semaphore::remove("test_start_semaphore");
@@ -30,9 +30,13 @@ auto main() -> int {
   cpp_coroutine_rpc::fixed_identical_address::rpc_context::remove_named_objects(
       "test", "e_calculator");
 
+  // NOLINTBEGIN(*-reinterpret-cast)
   bip::fixed_managed_shared_memory segment(
-      bip::create_only, "test_shared_info", 1024 * 4 * 1024,
+      bip::create_only, "test_shared_info",
+      static_cast<size_t>(1024) * 4 * 1024,
       reinterpret_cast<void *>(0x400000000000));
+  // NOLINTEND(*-reinterpret-cast)
+
   {
     cpp_coroutine_rpc::fixed_identical_address::rpc_context context{
         &segment, "test", "master", nullptr, 2, true};

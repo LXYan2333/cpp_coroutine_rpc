@@ -2,7 +2,7 @@
 #include <boost/interprocess/detail/segment_manager_helper.hpp>
 #include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #include <cpp_coroutine_rpc/fixed_identical_address.h>
-#include <cstdio>
+#include <iostream>
 #include <memory_resource>
 #include <sys/wait.h>
 #include <thread>
@@ -17,6 +17,7 @@ struct local_context {
   std::binary_semaphore finished{0};
 };
 
+namespace {
 auto get_pid(cpp_coroutine_rpc::fixed_identical_address::rpc_context *context)
     -> cpp_coroutine_rpc::fixed_identical_address::task {
 
@@ -24,31 +25,33 @@ auto get_pid(cpp_coroutine_rpc::fixed_identical_address::rpc_context *context)
       context);
   std::pmr::polymorphic_allocator<> alloc(&resource);
   std::vector<int, std::pmr::polymorphic_allocator<int>> vec(alloc);
-  fprintf(stderr, "master pid: %d\n", getpid());
+  std::cerr << "master pid: " << getpid() << '\n';
   vec.push_back(getpid());
   context = co_await context->resume_on("target");
 
-  fprintf(stderr, "success! worker pid: %d\n", getpid());
+  std::cerr << "success! worker pid: " << getpid() << '\n';
   vec.push_back(getpid());
-  fprintf(stderr, "vec: %d, %d\n", vec[0], vec[1]);
-  vec.reserve(6);
+  std::cerr << "vec: " << vec[0] << ", " << vec[1] << '\n';
+
+  // just show dynamic memory allocation works in this coroutine
+  vec.reserve(8);
+
   context = co_await context->resume_on("main");
 }
-
 auto call_stop(cpp_coroutine_rpc::fixed_identical_address::rpc_context *context)
     -> cpp_coroutine_rpc::fixed_identical_address::task {
   context = co_await context->resume_on("target");
   auto *local_ctx = static_cast<local_context *>(context->get_local_context());
   local_ctx->finished.release();
 }
+} // namespace
 
 int main() {
 
   using namespace boost::interprocess;
-  printf("parent process, PID: %d\n", getpid());
-  fflush(stdout);
+  std::cerr << "parent process, PID: " << getpid() << '\n';
   // Remove shared memory on construction and destruction
-  struct shm_remove {
+  struct shm_remove { // NOLINT(*-special-member-functions)
     shm_remove() { shared_memory_object::remove("MySharedMemory"); }
     ~shm_remove() { shared_memory_object::remove("MySharedMemory"); }
   } remover;
@@ -59,8 +62,11 @@ int main() {
       "test", "target");
 
   // Create a managed shared memory segment
+  // NOLINTBEGIN(*-reinterpret-cast)
   fixed_managed_shared_memory segment(create_only, "MySharedMemory", 65536,
-                                      (void *)0x400000000000);
+                                      reinterpret_cast<void *>(0x400000000000));
+  // NOLINTEND(*-reinterpret-cast)
+
   auto *start_semaphore =
       segment.construct<interprocess_semaphore>(bip::anonymous_instance)(0);
 
@@ -69,8 +75,8 @@ int main() {
     perror("fork");
     return 1;
   }
-  if (pid != 0) { // Parent process
-    printf("child process, PID: %d\n", pid);
+  if (pid != 0) { // child process
+    std::cerr << "child process, PID: " << pid << '\n';
     cpp_coroutine_rpc::fixed_identical_address::rpc_context context{
         &segment, "test", "main", nullptr, 2, true};
     start_semaphore->wait();
