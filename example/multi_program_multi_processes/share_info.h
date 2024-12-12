@@ -22,8 +22,6 @@ auto notify_finish(
     cpp_coroutine_rpc::fixed_identical_address::rpc_context *context)
     -> cpp_coroutine_rpc::fixed_identical_address::task;
 
-const inline volatile auto prevent_optimize_out = &my_test::calculate_pi_e;
-
 struct local_context {
   std::binary_semaphore finished{0};
 };

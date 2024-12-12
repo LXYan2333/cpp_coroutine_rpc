@@ -37,6 +37,8 @@ else()
 2. The linker does not support --image-base or -Ttext-segment")
 endif()
 
+set(CMAKE_LINK_WHAT_YOU_USE ON)
+
 set(CPP_COROUTINE_RPC_EXAMPLE_WORKER_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBEXECDIR}" CACHE STRING "The worker install path, wich will be used by the master to find the worker executables. Default is CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBEXECDIR")
 configure_file(worker_install_path.h.in ${PROJECT_BINARY_DIR}/worker_install_path.h @ONLY)
 add_executable(cpp_coroutine_rpc_example_master master.cc)
